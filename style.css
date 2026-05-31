@@ -1,0 +1,187 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    color: white;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.container {
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.header {
+    text-align: center;
+    padding: 20px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 20px;
+    margin-bottom: 20px;
+}
+
+.header h1 {
+    font-size: 28px;
+    letter-spacing: 2px;
+}
+
+.header p {
+    opacity: 0.8;
+    font-size: 14px;
+}
+
+/* Permission Card */
+.permission-card {
+    background: rgba(255, 152, 0, 0.9);
+    border-radius: 20px;
+    padding: 30px;
+    text-align: center;
+    backdrop-filter: blur(10px);
+}
+
+.lock-icon {
+    font-size: 50px;
+    margin-bottom: 15px;
+}
+
+.permission-card h2 {
+    margin-bottom: 10px;
+}
+
+.permission-card p {
+    margin-bottom: 20px;
+}
+
+.btn-allow, .btn-deny {
+    padding: 12px 30px;
+    font-size: 16px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    margin: 5px;
+    transition: transform 0.2s;
+}
+
+.btn-allow {
+    background: #4CAF50;
+    color: white;
+}
+
+.btn-deny {
+    background: #f44336;
+    color: white;
+}
+
+.btn-allow:hover, .btn-deny:hover {
+    transform: scale(1.05);
+}
+
+/* Control Section */
+.control-section {
+    background: rgba(255,255,255,0.1);
+    border-radius: 20px;
+    padding: 15px;
+    backdrop-filter: blur(10px);
+}
+
+.status-bar {
+    background: rgba(0,0,0,0.5);
+    padding: 10px;
+    border-radius: 10px;
+    margin-bottom: 15px;
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+}
+
+.menu-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+.menu-item {
+    background: rgba(0,0,0,0.5);
+    border-radius: 12px;
+    padding: 12px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: 1px solid rgba(255,255,255,0.1);
+}
+
+.menu-item:active {
+    transform: scale(0.95);
+    background: rgba(255,255,255,0.2);
+}
+
+.menu-item .icon {
+    font-size: 28px;
+    margin-bottom: 5px;
+}
+
+.menu-item .label {
+    font-size: 11px;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.menu-item .status-badge {
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 20px;
+    display: inline-block;
+}
+
+.status-badge.on {
+    background: #4CAF50;
+    color: white;
+}
+
+.status-badge.off {
+    background: #f44336;
+    color: white;
+}
+
+/* Toast */
+.toast {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #333;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 30px;
+    font-size: 14px;
+    opacity: 0;
+    transition: opacity 0.3s;
+    pointer-events: none;
+    z-index: 1000;
+}
+
+.toast.show {
+    opacity: 1;
+}
+
+/* Scrollbar */
+.menu-grid::-webkit-scrollbar {
+    width: 5px;
+}
+
+.menu-grid::-webkit-scrollbar-track {
+    background: rgba(255,255,255,0.1);
+    border-radius: 10px;
+}
+
+.menu-grid::-webkit-scrollbar-thumb {
+    background: #4CAF50;
+    border-radius: 10px;
+}
