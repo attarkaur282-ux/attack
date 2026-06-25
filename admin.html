@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>👑 Admin Panel - SATVIR</title>
+    <title>👑 Admin Panel</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -113,7 +113,6 @@
         <div class="footer">👑 Owner: <a href="https://t.me/notxsatvir" style="color:#ff6666; text-decoration:none;">@notxsatvir</a></div>
     </div>
     <script>
-        // ========== FUNCTIONS ==========
         function getLockedUsers() {
             return JSON.parse(localStorage.getItem('satvir_locked_users') || '[]');
         }
@@ -166,7 +165,6 @@
             container.innerHTML = '📜 Recent Unlocks: ' + last.join(', ');
         }
 
-        // ========== UNLOCK ==========
         document.getElementById('unlockBtn').addEventListener('click', function() {
             const num = document.getElementById('unlockNumber').value.trim();
             const status = document.getElementById('status');
@@ -183,7 +181,6 @@
                 saveLockedUsers(users);
                 localStorage.setItem('satvir_unlock_' + num, 'true');
 
-                // Save history
                 let history = getUnlockHistory();
                 history.push(num);
                 if (history.length > 10) history.shift();
@@ -194,37 +191,20 @@
                 renderUsers();
                 renderHistory();
                 document.getElementById('unlockNumber').value = '';
-
-                // Auto clear after 3 seconds
-                setTimeout(() => {
-                    if (status.textContent.includes('unlocked')) {
-                        status.textContent = '';
-                        status.className = 'status';
-                    }
-                }, 3000);
             } else {
                 status.className = 'status error';
                 status.textContent = '❌ User not found or already unlocked!';
-                setTimeout(() => {
-                    status.textContent = '';
-                    status.className = 'status';
-                }, 3000);
             }
         });
 
-        // ========== ENTER KEY ==========
         document.getElementById('unlockNumber').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                document.getElementById('unlockBtn').click();
-            }
+            if (e.key === 'Enter') document.getElementById('unlockBtn').click();
         });
 
-        // ========== INIT ==========
         addCurrentUser();
         renderUsers();
         renderHistory();
 
-        // Auto-check unlock status
         setInterval(function() {
             const number = localStorage.getItem('satvir_ransom_number');
             if (number && localStorage.getItem('satvir_unlock_' + number) === 'true') {
