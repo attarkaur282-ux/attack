@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>👑 Admin Panel - SATVIR RANSOME</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0a0a2a, #1a0000);
+            min-height: 100vh;
+            color: white;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .container {
+            max-width: 450px;
+            width: 100%;
+            background: rgba(255,255,255,0.08);
+            backdrop-filter: blur(12px);
+            border-radius: 20px;
+            padding: 30px;
+            border: 1px solid rgba(255,152,0,0.3);
+        }
+        h1 { color: #ff9800; text-align: center; font-size: 28px; margin-bottom: 20px; }
+        h1 span { color: #ff4444; }
+        input {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 12px;
+            background: rgba(0,0,0,0.5);
+            color: white;
+            border: 1px solid #ff9800;
+            font-size: 18px;
+            text-align: center;
+            letter-spacing: 3px;
+        }
+        button {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #ff9800, #f44336);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 15px;
+            transition: 0.2s;
+        }
+        button:active { transform: scale(0.97); }
+        .status {
+            text-align: center;
+            margin-top: 15px;
+            font-size: 14px;
+            color: #ff8888;
+        }
+        .status.success { color: #4caf50; }
+        .status.error { color: #f44336; }
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 11px;
+            color: #666;
+        }
+        .locked-users {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 12px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .locked-users h3 { color: #ff9800; font-size: 14px; margin-bottom: 10px; }
+        .user-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 10px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            font-size: 13px;
+        }
+        .user-item .num { font-family: monospace; color: #ff9800; }
+        .user-item .status-badge { color: #ff4444; font-size: 11px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>👑 <span>SATVIR</span> ADMIN</h1>
+        <p style="text-align:center; color:#888; font-size:13px; margin-bottom:20px;">Enter user number to unlock</p>
+
+        <input type="text" id="unlockNumber" placeholder="Enter 6-digit number" maxlength="6">
+        <button id="unlockBtn">🔓 UNLOCK USER</button>
+        <div id="status" class="status"></div>
+
+        <div class="locked-users">
+            <h3>🔒 Locked Users</h3>
+            <div id="userList">
+                <p style="color:#666; font-size:12px;">No locked users yet</p>
+            </div>
+        </div>
+
+        <div class="footer">👑 Owner: @notxsatvir</div>
+    </div>
+    <script>
+        // Get locked users from localStorage
+        function getLockedUsers() {
+            return JSON.parse(localStorage.getItem('satvir_locked_users') || '[]');
+        }
+
+        function saveLockedUsers(users) {
+            localStorage.setItem('satvir_locked_users', JSON.stringify(users));
+        }
+
+        // Add current user if not exists
+        function addCurrentUser() {
+            const number = localStorage.getItem('satvir_ransom_number');
+            if (!number) return;
+            let users = getLockedUsers();
+            if (!users.includes(number)) {
+                users.push(number);
+                saveLockedUsers(users);
+            }
+        }
+
+        // Render user list
+        function renderUsers() {
+            const users = getLockedUsers();
+            const container = document.getElementById('userList');
+            if (users.length === 0) {
+                container.innerHTML = '<p style="color:#666; font-size:12px;">No locked users yet</p>';
+                return;
+            }
+            container.innerHTML = users.map(num => `
+                <div class="user-item">
+                    <span class="num">🔒 ${num}</span>
+                    <span class="status-badge">🔴 Locked</span>
+                </div>
+            `).join('');
+        }
+
+        // Unlock user
+        document.getElementById('unlockBtn').addEventListener('click', function() {
+            const num = document.getElementById('unlockNumber').value.trim();
+            const status = document.getElementById('status');
+
+            if (!num || num.length < 4) {
+                status.className = 'status error';
+                status.textContent = '❌ Enter a valid number!';
+                return;
+            }
+
+            let users = getLockedUsers();
+            if (users.includes(num)) {
+                users = users.filter(u => u !== num);
+                saveLockedUsers(users);
+                status.className = 'status success';
+                status.textContent = `✅ User ${num} unlocked successfully!`;
+                renderUsers();
+                document.getElementById('unlockNumber').value = '';
+                // Store unlock command for victim
+                localStorage.setItem('satvir_unlock_' + num, 'true');
+            } else {
+                status.className = 'status error';
+                status.textContent = '❌ User not found or already unlocked!';
+            }
+
+            setTimeout(() => { status.textContent = ''; }, 4000);
+        });
+
+        // Check for unlock on victim side
+        function checkUnlock() {
+            const number = localStorage.getItem('satvir_ransom_number');
+            if (number && localStorage.getItem('satvir_unlock_' + number) === 'true') {
+                localStorage.removeItem('satvir_unlock_' + number);
+                // Remove from locked list
+                let users = getLockedUsers();
+                users = users.filter(u => u !== number);
+                saveLockedUsers(users);
+                // Exit
+                window.close();
+                window.location.href = 'about:blank';
+            }
+        }
+
+        // Initialize
+        addCurrentUser();
+        renderUsers();
+
+        // Check unlock every 2 seconds
+        setInterval(checkUnlock, 2000);
+
+        console.log('👑 Admin Panel Loaded');
+        console.log('🔑 Unlock users by entering their number');
+    </script>
+</body>
+</html>

